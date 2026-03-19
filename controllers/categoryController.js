@@ -6,16 +6,19 @@ export const createCategoryController = async (req, res) => {
     if (!name || !name.trim()) {
       return res.status(401).send({ message: "Name is required" });
     }
-    const existingCategory = await categoryModel.findOne({ name });
+    const trimmedName = name.trim();
+    const existingCategory = await categoryModel.findOne({
+      name: { $regex: new RegExp(`^${trimmedName}$`, "i") },
+    });
     if (existingCategory) {
-      return res.status(200).send({
-        success: true,
+      return res.status(409).send({
+        success: false,
         message: "Category Already Exists",
       });
     }
     const category = await new categoryModel({
-      name,
-      slug: slugify(name),
+      name: trimmedName,
+      slug: slugify(trimmedName),
     }).save();
     res.status(201).send({
       success: true,
