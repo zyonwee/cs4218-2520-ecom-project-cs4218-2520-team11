@@ -3,7 +3,7 @@ import slugify from "slugify";
 export const createCategoryController = async (req, res) => {
   try {
     const { name } = req.body;
-    if (!name) {
+    if (!name || !name.trim()) {
       return res.status(401).send({ message: "Name is required" });
     }
     const existingCategory = await categoryModel.findOne({ name });
@@ -37,6 +37,9 @@ export const updateCategoryController = async (req, res) => {
   try {
     const { name } = req.body;
     const { id } = req.params;
+    if (!name || !name.trim()) {
+      return res.status(401).send({ message: "Name is required" });
+    }
     const category = await categoryModel.findByIdAndUpdate(
       id,
       { name, slug: slugify(name) },
