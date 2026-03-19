@@ -59,8 +59,16 @@ beforeEach(() => {
   );
 
   jest.spyOn(categoryModel, "findOne").mockImplementation((query) => {
-    const [field, value] = Object.entries(query)[0];
-    return Promise.resolve(store.find((doc) => doc[field] === value) ?? null);
+    return Promise.resolve(
+      store.find((doc) =>
+        Object.entries(query).every(([field, value]) => {
+          if (value && value.$regex instanceof RegExp) {
+            return value.$regex.test(doc[field]);
+          }
+          return doc[field] === value;
+        })
+      ) ?? null
+    );
   });
 
   jest.spyOn(categoryModel, "findByIdAndUpdate").mockImplementation(
@@ -134,8 +142,36 @@ describe("categoryController integration tests", () => {
     expect(store).toHaveLength(0);
   });
 
-  // ── 3. Duplicate category (200) ─────────────────────────────────────────
-  it("returns 200 with 'Category Already Exists' and does not insert a duplicate", async () => {
+  // ── 3a. Empty name (401) ────────────────────────────────────────────────
+  it("returns 401 and does not insert when name is an empty string", async () => {
+    // Julius Bryan Reynon Gambe A0252251R
+    const req = { body: { name: "" } };
+    const res = buildRes();
+
+    await createCategoryController(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.send).toHaveBeenCalledWith({ message: "Name is required" });
+    expect(categoryModel.prototype.save).not.toHaveBeenCalled();
+    expect(store).toHaveLength(0);
+  });
+
+  // ── 3b. Whitespace-only name (401) ──────────────────────────────────────
+  it("returns 401 and does not insert when name is whitespace only", async () => {
+    // Julius Bryan Reynon Gambe A0252251R
+    const req = { body: { name: "   " } };
+    const res = buildRes();
+
+    await createCategoryController(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.send).toHaveBeenCalledWith({ message: "Name is required" });
+    expect(categoryModel.prototype.save).not.toHaveBeenCalled();
+    expect(store).toHaveLength(0);
+  });
+
+  // ── 3c. Duplicate category – exact match (409) ──────────────────────────
+  it("returns 409 with 'Category Already Exists' and does not insert a duplicate", async () => {
     // Julius Bryan Reynon Gambe A0252251R
     const name = "Electronics";
     store.push({ _id: "seed-1", name, slug: slugify(name) });
@@ -145,13 +181,62 @@ describe("categoryController integration tests", () => {
 
     await createCategoryController(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.status).toHaveBeenCalledWith(409);
     expect(res.send).toHaveBeenCalledWith({
-      success: true,
+      success: false,
       message: "Category Already Exists",
     });
-    // Still only the one pre-seeded document – no second insert
     expect(store).toHaveLength(1);
+  });
+
+  // ── 3d. Duplicate category – case-insensitive match (409) ───────────────
+  it("returns 409 when a category with the same name but different case already exists", async () => {
+    // Julius Bryan Reynon Gambe A0252251R
+    store.push({ _id: "seed-1", name: "Electronics", slug: "electronics" });
+
+    const req = { body: { name: "electronics" } };
+    const res = buildRes();
+
+    await createCategoryController(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(409);
+    expect(res.send).toHaveBeenCalledWith({
+      success: false,
+      message: "Category Already Exists",
+    });
+    expect(store).toHaveLength(1);
+  });
+
+  // ── 4a. Update – missing name (401) ────────────────────────────────────
+  it("returns 401 and does not update when update name is missing", async () => {
+    // Julius Bryan Reynon Gambe A0252251R
+    store.push({ _id: "cat-1", name: "Old Name", slug: slugify("Old Name") });
+
+    const req = { body: {}, params: { id: "cat-1" } };
+    const res = buildRes();
+
+    await updateCategoryController(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.send).toHaveBeenCalledWith({ message: "Name is required" });
+    expect(categoryModel.findByIdAndUpdate).not.toHaveBeenCalled();
+    expect(store[0].name).toBe("Old Name");
+  });
+
+  // ── 4b. Update – whitespace-only name (401) ─────────────────────────────
+  it("returns 401 and does not update when update name is whitespace only", async () => {
+    // Julius Bryan Reynon Gambe A0252251R
+    store.push({ _id: "cat-1", name: "Old Name", slug: slugify("Old Name") });
+
+    const req = { body: { name: "   " }, params: { id: "cat-1" } };
+    const res = buildRes();
+
+    await updateCategoryController(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.send).toHaveBeenCalledWith({ message: "Name is required" });
+    expect(categoryModel.findByIdAndUpdate).not.toHaveBeenCalled();
+    expect(store[0].name).toBe("Old Name");
   });
 
   // ── 4. Update success (200) ─────────────────────────────────────────────
