@@ -101,6 +101,7 @@ afterEach(() => {
 describe("categoryController integration tests", () => {
   // ── 1. Create success (201) ─────────────────────────────────────────────
   it("creates a category and stores a slug equal to real slugify(name)", async () => {
+    // Julius Bryan Reynon Gambe A0252251R
     const name = "Fresh Produce";
     const req = { body: { name } };
     const res = buildRes();
@@ -120,6 +121,7 @@ describe("categoryController integration tests", () => {
 
   // ── 2. Missing name (401) ───────────────────────────────────────────────
   it("returns 401 and does not attempt a DB insert when name is missing", async () => {
+    // Julius Bryan Reynon Gambe A0252251R
     const req = { body: {} };
     const res = buildRes();
 
@@ -134,6 +136,7 @@ describe("categoryController integration tests", () => {
 
   // ── 3. Duplicate category (200) ─────────────────────────────────────────
   it("returns 200 with 'Category Already Exists' and does not insert a duplicate", async () => {
+    // Julius Bryan Reynon Gambe A0252251R
     const name = "Electronics";
     store.push({ _id: "seed-1", name, slug: slugify(name) });
 
@@ -153,6 +156,7 @@ describe("categoryController integration tests", () => {
 
   // ── 4. Update success (200) ─────────────────────────────────────────────
   it("updates a category and regenerates the slug via real slugify", async () => {
+    // Julius Bryan Reynon Gambe A0252251R
     store.push({ _id: "cat-1", name: "Old Name", slug: slugify("Old Name") });
 
     const newName = "Brand New Name";
@@ -171,6 +175,7 @@ describe("categoryController integration tests", () => {
 
   // ── 5. Get all categories (200) ─────────────────────────────────────────
   it("returns all categories with success: true and the full category array", async () => {
+    // Julius Bryan Reynon Gambe A0252251R
     store.push(
       { _id: "c1", name: "Books", slug: slugify("Books") },
       { _id: "c2", name: "Toys", slug: slugify("Toys") }
@@ -190,6 +195,7 @@ describe("categoryController integration tests", () => {
 
   // ── 6. Get single category (200) ────────────────────────────────────────
   it("returns the matching category document for a valid slug param", async () => {
+    // Julius Bryan Reynon Gambe A0252251R
     const doc = {
       _id: "c3",
       name: "Garden Tools",
@@ -210,6 +216,7 @@ describe("categoryController integration tests", () => {
 
   // ── 7. Delete success (200) ─────────────────────────────────────────────
   it("removes the category and returns 'Category Deleted Successfully'", async () => {
+    // Julius Bryan Reynon Gambe A0252251R
     store.push({ _id: "del-1", name: "Sports", slug: slugify("Sports") });
 
     const req = { params: { id: "del-1" } };
@@ -254,6 +261,7 @@ describe("categoryController integration tests", () => {
     });
 
     it("slug from createCategoryController (real slugify + lowercase) is the slug productCategoryController looks up", async () => {
+      // Julius Bryan Reynon Gambe A0252251R
       const name = "Smart Phones";
 
       // ── Step 1: create the category via the real controller ──────────────
@@ -293,6 +301,7 @@ describe("categoryController integration tests", () => {
     });
 
     it("unknown slug (no matching category) still completes without error and returns null category", async () => {
+      // Julius Bryan Reynon Gambe A0252251R
       // store is empty — findOne will return null for any slug
       const productReq = { params: { slug: "non-existent-category" } };
       const productRes = buildRes();
@@ -325,6 +334,7 @@ describe("categoryController integration tests", () => {
     });
 
     it("real categoryModel document (with schema lowercase) is retrieved by productCategoryController", async () => {
+      // Julius Bryan Reynon Gambe A0252251R
       const name = "Smart Phones";
 
       // ── Step 1: create via real controller + real slugify + real schema ──
@@ -386,6 +396,7 @@ describe("categoryController integration tests", () => {
     });
 
     it("real productModel schema rejects a product missing required fields", async () => {
+      // Julius Bryan Reynon Gambe A0252251R
       // Demonstrates that real schema validation is active (not bypassed by mocks).
       // A product without required fields should fail mongoose validation.
       const invalidProduct = new productModel({ name: "Incomplete" });

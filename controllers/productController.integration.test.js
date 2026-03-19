@@ -182,6 +182,7 @@ const validPhoto = {
 describe("productController integration tests", () => {
   // ── 1. Create success (201) ─────────────────────────────────────────────
   it("creates a product (201): slug = real slugify(name), photo.data from readFileSync, photo.contentType from file type", async () => {
+    // Julius Bryan Reynon Gambe A0252251R
     const req = { fields: { ...validFields }, files: { photo: validPhoto } };
     const res = buildRes();
 
@@ -215,6 +216,7 @@ describe("productController integration tests", () => {
   // fs.readFileSync must not be called and the product is still persisted
   // with an empty photo subdocument on a real mongoose Document.
   it("creates a product without a photo: readFileSync not called, photo subdoc remains empty", async () => {
+    // Julius Bryan Reynon Gambe A0252251R
     const req = { fields: { ...validFields }, files: {} };
     const res = buildRes();
 
@@ -242,6 +244,7 @@ describe("productController integration tests", () => {
   // test bypasses the controller's own validation to confirm the real
   // mongoose schema's `required: true` constraints are independently active.
   it("real productModel schema invalidates a document with missing required fields", () => {
+    // Julius Bryan Reynon Gambe A0252251R
     const incompleteDoc = new productModel({ name: "Only Name" });
     const validationError = incompleteDoc.validateSync();
 
@@ -256,6 +259,7 @@ describe("productController integration tests", () => {
 
   // ── 4. Get all products (200) ────────────────────────────────────────────
   it("returns up to 12 products (200), photo excluded, category populated, sorted desc by createdAt", async () => {
+    // Julius Bryan Reynon Gambe A0252251R
     for (let i = 1; i <= 3; i++) {
       productStore.push(
         new productModel({
@@ -291,6 +295,7 @@ describe("productController integration tests", () => {
 
   // ── 5. Get single product (200) ──────────────────────────────────────────
   it("returns the matching product (200) by slug, with category populated and photo excluded", async () => {
+    // Julius Bryan Reynon Gambe A0252251R
     const doc = new productModel({
       name: "Galaxy S24",
       slug: slugify("Galaxy S24"),
@@ -321,6 +326,7 @@ describe("productController integration tests", () => {
 
   // ── 6. Update success (201) ──────────────────────────────────────────────
   it("updates a product (201): slug regenerated via real slugify, photo replaced when a new photo is provided", async () => {
+    // Julius Bryan Reynon Gambe A0252251R
     // Create an initial product so the store holds a real mongoose Document
     const createReq = { fields: { ...validFields }, files: { photo: validPhoto } };
     const createRes = buildRes();
@@ -366,6 +372,7 @@ describe("productController integration tests", () => {
   // when files is empty the existing photo subdocument is carried forward
   // unchanged and fs.readFileSync is never invoked.
   it("update without new photo (201): existing photo data preserved, readFileSync not called", async () => {
+    // Julius Bryan Reynon Gambe A0252251R
     // Seed via create so the store holds a real mongoose Document with photo
     const createReq = { fields: { ...validFields }, files: { photo: validPhoto } };
     const createRes = buildRes();
@@ -403,6 +410,7 @@ describe("productController integration tests", () => {
 
   // ── 8. Delete success (200) ──────────────────────────────────────────────
   it("deletes a product (200) and removes it from the store", async () => {
+    // Julius Bryan Reynon Gambe A0252251R
     // Seed via createProductController so the document is a real mongoose instance
     const createReq = { fields: { ...validFields }, files: {} };
     const createRes = buildRes();
