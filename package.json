@@ -17,7 +17,9 @@
     "db:seed": "./scripts/db.sh seed",
     "db:reset": "./scripts/db.sh reset",
     "db:logs": "./scripts/db.sh logs",
-    "db:status": "./scripts/db.sh status"
+    "db:status": "./scripts/db.sh status",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "keywords": [],
   "author": "RP",
