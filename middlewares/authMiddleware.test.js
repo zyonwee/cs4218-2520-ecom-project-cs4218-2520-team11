@@ -72,5 +72,26 @@ describe("Security Middleware Test Suite", () => {
         expect(next).toHaveBeenCalledTimes(1);
       });
     });
+
+    describe("Error Handling", () => {
+      it("should return 401 and error message if an exception is caught", async () => {
+      // Huang Yi Chee, A0259617R
+        
+        const mockError = new Error("Database connection lost");
+        userModel.findById.mockRejectedValue(mockError);
+
+        await isAdmin(req, res, next);
+
+        expect(res.status).toHaveBeenCalledWith(401);
+        expect(res.send).toHaveBeenCalledWith(
+          expect.objectContaining({
+            success: false,
+            error: mockError,
+            message: "Error in admin middleware",
+          })
+        );
+        expect(next).not.toHaveBeenCalled();
+      });
+    });
   });
 });

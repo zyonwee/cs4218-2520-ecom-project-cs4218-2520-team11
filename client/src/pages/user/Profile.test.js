@@ -86,6 +86,17 @@ describe("Profile Component UI Test Suite", () => {
             expect(nameInput.value).toBe("Updated Name");
         });
 
+        it("should allow programmatic updates to the disabled email field", () => {
+        // Huang Yi Chee, A0259617R
+            render(<Profile />);
+      
+            const emailInput = screen.getByPlaceholderText(/Enter Your Email/i);
+            
+            fireEvent.change(emailInput, { target: { value: "new_forced_email@example.com" } });
+      
+            expect(emailInput.value).toBe("new_forced_email@example.com");
+        });
+
         it("should handle successful profile update, update global state, and set LocalStorage", async () => {
         // Huang Yi Chee, A0259617R
             const updatedUser = { ...mockAuthData.user, name: "Updated Name" };
