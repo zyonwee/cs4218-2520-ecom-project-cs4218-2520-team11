@@ -1,3 +1,4 @@
+// Gabriel Seethor, A0257008H
 import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import axios from "axios";
@@ -157,7 +158,7 @@ describe("Integration | Guest Cart → Login → Cart Merge", () => {
     );
   });
 
-  it("TC-005 | localStorage cart survives the login transition unchanged", () => {
+  it(" localStorage cart survives the login transition unchanged", () => {
     seedGuestCart([productA, productB]);
     simulateLogin();
 

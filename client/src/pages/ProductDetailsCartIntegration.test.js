@@ -1,3 +1,4 @@
+// Gabriel Seethor, A0257008H
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
@@ -160,7 +161,6 @@ describe("Product Detail Shopping Cart Integration", () => {
       await screen.findByRole("button", { name: /add to cart/i }),
     );
 
-    // ⚠️ This assertion WILL FAIL until the bug is fixed in Header.js
     await waitFor(() => {
       const badge = screen.queryByTestId("cart-count-badge");
       expect(badge).not.toBeNull();

@@ -1,3 +1,4 @@
+// Gabriel Seethor, A0257008H
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";

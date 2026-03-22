@@ -1,6 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
+  lobalSetup: "./global-setup.ts",
   testDir: "./tests",
   fullyParallel: false,
   forbidOnly: !!process.env.CI,

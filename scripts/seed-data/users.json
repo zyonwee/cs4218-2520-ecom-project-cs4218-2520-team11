@@ -206,4 +206,18 @@
     "$date": "2025-02-04T13:40:46.071Z"
   },
   "__v": 0
-}]
+}, 
+{
+  "_id": { "$oid": "673a1234567890abcdef1234" },
+  "name": "Jian Yang",
+  "email": "jianyang@gmail.com",
+  "password": "$2b$10$wQKlwAayjzYFlV4LqjDhpeDurSwTXSTgqPnlfor7Qicdi445oDKRG",
+  "phone": "91234567",
+  "address": "Old Address",
+  "answer": "rugby",
+  "role": 0,
+  "createdAt": { "$date": "2024-10-18T08:00:00.000Z" },
+  "updatedAt": { "$date": "2024-10-18T08:00:00.000Z" },
+  "__v": 0
+}
+]
