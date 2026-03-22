@@ -261,11 +261,12 @@ export const productListController = async (req, res) => {
 export const searchProductController = async (req, res) => {
   try {
     const { keyword } = req.params;
+    const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const resutls = await productModel
       .find({
         $or: [
-          { name: { $regex: keyword, $options: "i" } },
-          { description: { $regex: keyword, $options: "i" } },
+          { name: { $regex: escapedKeyword, $options: "i" } },
+          { description: { $regex: escapedKeyword, $options: "i" } },
         ],
       })
       .select("-photo");
@@ -339,6 +340,11 @@ export const braintreeTokenController = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error generating Braintree token",
+      error,
+    });
   }
 };
 
@@ -346,10 +352,7 @@ export const braintreeTokenController = async (req, res) => {
 export const brainTreePaymentController = async (req, res) => {
   try {
     const { nonce, cart } = req.body;
-    let total = 0;
-    cart.map((i) => {
-      total += i.price;
-    });
+    let total = cart.reduce((sum, item) => sum + item.price, 0);
     let newTransaction = gateway.transaction.sale(
       {
         amount: total,
@@ -358,9 +361,9 @@ export const brainTreePaymentController = async (req, res) => {
           submitForSettlement: true,
         },
       },
-      function (error, result) {
+      async function (error, result) {
         if (result) {
-          const order = new orderModel({
+          await new orderModel({
             products: cart,
             payment: result,
             buyer: req.user._id,
@@ -373,5 +376,10 @@ export const brainTreePaymentController = async (req, res) => {
     );
   } catch (error) {
     console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error processing payment",
+      error,
+    });
   }
 };

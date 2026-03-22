@@ -188,9 +188,9 @@ test.describe("Search Flow – SearchInput → Search Results Page", () => {
       MOCK_PRODUCT_1.description.substring(0, 30) + "...";
     await expect(page.getByText(truncatedDesc)).toBeVisible();
 
-    // Price with $ prefix
+    // Price formatted as USD
     await expect(
-      page.getByText(`$ ${MOCK_PRODUCT_1.price}`)
+      page.getByText(MOCK_PRODUCT_1.price.toLocaleString("en-US", { style: "currency", currency: "USD" }))
     ).toBeVisible();
 
     // Image with correct src
@@ -281,5 +281,41 @@ test.describe("Search Flow – SearchInput → Search Results Page", () => {
     // Both product cards present
     const cards = page.locator(".card");
     await expect(cards).toHaveCount(2);
+  });
+
+  // ── Regression: search keyword with special characters is URL-encoded ───
+  test("search with special characters like % is correctly URL-encoded in the API call", async ({
+    page,
+  }) => {
+    let capturedUrl = null;
+    await page.route(/\/api\/v1\/product\/search\//, (route) => {
+      capturedUrl = route.request().url();
+      return route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify([MOCK_PRODUCT_1]),
+      });
+    });
+
+    await searchFor(page, "100% cotton");
+    await page.waitForURL("**/search");
+
+    // The keyword should be URL-encoded — %25 for %, %20 for space
+    expect(capturedUrl).toBeTruthy();
+    expect(capturedUrl).toContain("100%25%20cotton");
+  });
+
+  // ── Regression: search price formatted as USD currency ──────────────────
+  test("product prices on search results use consistent USD currency formatting", async ({
+    page,
+  }) => {
+    await mockSearchApi(page, [MOCK_PRODUCT_1, MOCK_PRODUCT_2]);
+
+    await searchFor(page, "test");
+    await page.waitForURL("**/search");
+
+    // Prices should be formatted with $ and proper number formatting
+    await expect(page.getByText(MOCK_PRODUCT_1.price.toLocaleString("en-US", { style: "currency", currency: "USD" }))).toBeVisible();
+    await expect(page.getByText(MOCK_PRODUCT_2.price.toLocaleString("en-US", { style: "currency", currency: "USD" }))).toBeVisible();
   });
 });

@@ -5,10 +5,10 @@ export const hashPassword = async (password) => {
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
         return hashedPassword;
-
     } catch (error) {
         console.log(error);
-    } throw new Error("Bcrypt hashing failed");
+        throw new Error("Bcrypt hashing failed");
+    }
 };
 
 export const comparePassword = async (password,hashedPassword) => {

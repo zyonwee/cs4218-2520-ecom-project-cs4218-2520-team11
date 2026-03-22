@@ -69,7 +69,7 @@ const MOCK_ORDERS = [
     _id: "order-1",
     status: "Processing",
     buyer: { name: "John Doe" },
-    createAt: "2026-03-20T10:00:00.000Z",
+    createdAt: "2026-03-20T10:00:00.000Z",
     payment: { success: true },
     products: [MOCK_ORDER_PRODUCT_1],
   },
@@ -77,7 +77,7 @@ const MOCK_ORDERS = [
     _id: "order-2",
     status: "Delivered",
     buyer: { name: "John Doe" },
-    createAt: "2026-03-15T08:00:00.000Z",
+    createdAt: "2026-03-15T08:00:00.000Z",
     payment: { success: false },
     products: [MOCK_ORDER_PRODUCT_1, MOCK_ORDER_PRODUCT_2],
   },
@@ -263,6 +263,23 @@ test.describe("User Profile Page", () => {
       page.getByText("Password must be at least 6 characters")
     ).toBeVisible({ timeout: 10000 });
   });
+
+  // ── Regression: frontend validates empty fields before API call ──────────
+  test("shows error when name field is cleared and form is submitted", async ({ page }) => {
+    // Even without mocking the API, the frontend should catch empty name
+    await page.goto("/dashboard/user/profile");
+    await page.waitForLoadState("networkidle");
+
+    // Clear name and submit
+    const nameInput = page.getByPlaceholder("Enter Your Name");
+    await nameInput.clear();
+    await page.getByRole("button", { name: "UPDATE" }).click();
+
+    // Frontend validation fires before the API call
+    await expect(
+      page.getByText("Name is required")
+    ).toBeVisible({ timeout: 10000 });
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -321,6 +338,33 @@ test.describe("User Orders Page", () => {
     // Order 2: status, payment
     await expect(page.getByText("Delivered")).toBeVisible();
     await expect(page.getByText("Failed")).toBeVisible();
+  });
+
+  // ── Regression: order dates render correctly (bug #4 — createAt typo) ──
+  test("order date column shows valid relative time, not 'Invalid date'", async ({
+    page,
+  }) => {
+    await page.route("**/api/v1/auth/orders", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(MOCK_ORDERS),
+      })
+    );
+
+    await page.goto("/dashboard/user/orders");
+    await page.waitForLoadState("networkidle");
+
+    // The date column should NOT contain "Invalid date"
+    const dateCells = page.locator("table tbody td:nth-child(4)");
+    const count = await dateCells.count();
+    expect(count).toBeGreaterThan(0);
+    for (let i = 0; i < count; i++) {
+      const text = await dateCells.nth(i).textContent();
+      expect(text).not.toContain("Invalid date");
+      // Should contain a relative time phrase like "X days ago" or "a few seconds ago"
+      expect(text.length).toBeGreaterThan(0);
+    }
   });
 
   // ── Order product details ───────────────────────────────────────────────

@@ -54,7 +54,14 @@ export const registerController = async (req, res) => {
     res.status(201).send({
       success: true,
       message: "User Register Successfully",
-      user,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        address: user.address,
+        role: user.role,
+      },
     });
   } catch (error) {
     console.log(error);
@@ -173,9 +180,19 @@ export const updateProfileController = async (req, res) => {
   try {
     const { name, email, password, address, phone } = req.body;
     const user = await userModel.findById(req.user._id);
+    // Server-side validation
+    if (name !== undefined && !name.trim()) {
+      return res.status(400).json({ error: "Name is required" });
+    }
+    if (phone !== undefined && !phone.trim()) {
+      return res.status(400).json({ error: "Phone is required" });
+    }
+    if (address !== undefined && typeof address === 'string' && !address.trim()) {
+      return res.status(400).json({ error: "Address is required" });
+    }
     //password
     if (password && password.length < 6) {
-      return res.json({ error: "Password is required and 6 character long" });
+      return res.status(400).json({ error: "Password is required and 6 character long" });
     }
     const hashedPassword = password ? await hashPassword(password) : undefined;
     const updatedUser = await userModel.findByIdAndUpdate(
@@ -209,7 +226,8 @@ export const getOrdersController = async (req, res) => {
     const orders = await orderModel
       .find({ buyer: req.user._id })
       .populate("products", "-photo")
-      .populate("buyer", "name");
+      .populate("buyer", "name")
+      .sort({ createdAt: -1 });
     res.json(orders);
   } catch (error) {
     console.log(error);
@@ -265,7 +283,7 @@ export const orderStatusController = async (req, res) => {
     const orders = await orderModel.findByIdAndUpdate(
       orderId,
       { status },
-      { new: true }
+      { new: true, runValidators: true }
     );
     res.json(orders);
   } catch (error) {
