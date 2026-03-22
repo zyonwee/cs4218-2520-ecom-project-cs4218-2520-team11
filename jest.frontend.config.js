@@ -26,6 +26,9 @@ export default {
   // jest code coverage
   collectCoverage: true,
 
+  coverageReporters: ["lcov", "text"],
+  coverageDirectory: "<rootDir>/client/coverage",
+
   // scope coverage to MS1 assigned frontend files
   collectCoverageFrom: [
   "client/src/context/auth.js",
@@ -60,7 +63,7 @@ export default {
   "client/src/components/Spinner.js",
   "client/src/pages/About.js",
   "client/src/pages/Pagenotfound.js",
-  "client/src/pages/Homepage.js",
+  "client/src/pages/HomePage.js",
   "client/src/pages/Contact.js",
   "client/src/pages/Policy.js",
   ],
