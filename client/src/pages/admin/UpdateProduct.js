@@ -70,6 +70,7 @@ const UpdateProduct = () => {
       productData.append("quantity", quantity);
       photo && productData.append("photo", photo);
       productData.append("category", category);
+      productData.append("shipping", shipping);
       const { data } = await axios.put(
         `/api/v1/product/update-product/${id}`,
         productData
@@ -117,6 +118,9 @@ const UpdateProduct = () => {
                 size="large"
                 showSearch
                 className="form-select mb-3"
+                filterOption={(input, option) =>
+                  option.children.toLowerCase().includes(input.toLowerCase())
+                }
                 onChange={(value) => {
                   setCategory(value);
                 }}
@@ -205,10 +209,13 @@ const UpdateProduct = () => {
                   size="large"
                   showSearch
                   className="form-select mb-3"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
                   onChange={(value) => {
                     setShipping(value);
                   }}
-                  value={shipping ? "yes" : "No"}
+                  value={shipping ? "1" : "0"}
                 >
                   <Option value="0">No</Option>
                   <Option value="1">Yes</Option>

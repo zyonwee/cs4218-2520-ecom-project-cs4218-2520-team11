@@ -14,6 +14,10 @@ const CreateCategory = () => {
   //handle Form
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!name.trim()) {
+      toast.error("Category name is required");
+      return;
+    }
     try {
       const { data } = await axios.post("/api/v1/category/create-category", {
         name,
@@ -26,7 +30,8 @@ const CreateCategory = () => {
       }
     } catch (error) {
       console.log(error);
-      toast.error("something went wrong in input form");
+      const msg = error?.response?.data?.message;
+      toast.error(msg || "something went wrong in input form");
     }
   };
 
@@ -50,6 +55,10 @@ const CreateCategory = () => {
   //update category
   const handleUpdate = async (e) => {
     e.preventDefault();
+    if (!updatedName.trim()) {
+      toast.error("Category name is required");
+      return;
+    }
     try {
       const { data } = await axios.put(
         `/api/v1/category/update-category/${selected._id}`,

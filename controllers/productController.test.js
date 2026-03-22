@@ -1,5 +1,5 @@
 // Lines 1-23 are generated from DeepSeekV3.2 to set up unit tests for the Backend.
-const { 
+const {
   realtedProductController,
   productCountController,
   searchProductController,
@@ -35,7 +35,7 @@ describe('Product Controller Unit Tests', () => {
       json: jest.fn()
     };
   });
-// Gabriel Seethor, A0257008H 
+  // Gabriel Seethor, A0257008H 
   describe('Product Recommendation (realtedProductController)', () => {
     test('should not show more than 3 related products', async () => {
       req.params = {
@@ -98,33 +98,33 @@ describe('Product Controller Unit Tests', () => {
 
   test("shoild return correct error", async () => {
     req.params = {
-        pid: 'product123',
-        cid: 'category456'
-      };
+      pid: 'product123',
+      cid: 'category456'
+    };
 
     const mockError = new Error("Database connection failed");
 
-    productModel.find.mockReturnValue( {
-        select : jest.fn().mockReturnThis(),
-        limit: jest.fn().mockReturnThis(),
-        populate: jest.fn().mockRejectedValue(mockError) 
+    productModel.find.mockReturnValue({
+      select: jest.fn().mockReturnThis(),
+      limit: jest.fn().mockReturnThis(),
+      populate: jest.fn().mockRejectedValue(mockError)
 
-     }
+    }
     )
 
-    await realtedProductController(req,res);
+    await realtedProductController(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.send).toHaveBeenCalledWith({
-        success: false,
-        message: "error while geting related product",
-        error : mockError
+      success: false,
+      message: "error while geting related product",
+      error: mockError
 
-  });
+    });
 
 
   })
-// Gabriel Seethor, A0257008H 
+  // Gabriel Seethor, A0257008H 
   describe("View Product List/Home Page (productCountController)", () => {
     test("should return right product count", async () => {
       const mockCount = 8;
@@ -133,7 +133,7 @@ describe('Product Controller Unit Tests', () => {
       };
 
       productModel.find.mockReturnValue(mockQuery);
-      
+
       await productCountController(req, res);
 
       expect(productModel.find).toHaveBeenCalledWith({});
@@ -145,23 +145,23 @@ describe('Product Controller Unit Tests', () => {
       });
     });
     test("should return correct error", async () => {
-      
-   
-    
-    const mockError = new Error("Database connection failed");
-    
-    productModel.find.mockReturnValue({
-        estimatedDocumentCount: jest.fn().mockRejectedValue(mockError) 
-    });
 
-    await productCountController(req, res);
 
-    expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.send).toHaveBeenCalledWith({
+
+      const mockError = new Error("Database connection failed");
+
+      productModel.find.mockReturnValue({
+        estimatedDocumentCount: jest.fn().mockRejectedValue(mockError)
+      });
+
+      await productCountController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.send).toHaveBeenCalledWith({
         success: false,
         message: "Error in product count",
-        error : mockError
-    });
+        error: mockError
+      });
 
 
 
@@ -170,242 +170,227 @@ describe('Product Controller Unit Tests', () => {
 
 
   });
-// Gabriel Seethor, A0257008H 
+  // Gabriel Seethor, A0257008H 
   describe("Search Products (searchProductController)", () => {
     test("should call searchProductController with correct params ", async () => {
 
 
 
-     req.params = {
-       keyword: 'textbook'
+      req.params = {
+        keyword: 'textbook'
       };
 
       const mockProducts = [
         { _id: 'prod1', name: 'math textbook ', category: 'category456' },
         { _id: 'prod2', name: 'science textbook', category: 'category456' }
       ];
-     
+
       const mockQuery = {
         select: jest.fn().mockResolvedValue(mockProducts)
       };
 
-     productModel.find.mockReturnValue(mockQuery);
+      productModel.find.mockReturnValue(mockQuery);
 
-      
+
       await searchProductController(req, res);
 
-    expect(productModel.find).toHaveBeenCalledWith({
-     $or: [
-      { name: { $regex: 'textbook', $options: 'i' } },
-      { description: { $regex: 'textbook', $options: 'i' } }
-    ]
-  });
+      expect(productModel.find).toHaveBeenCalledWith({
+        $or: [
+          { name: { $regex: 'textbook', $options: 'i' } },
+          { description: { $regex: 'textbook', $options: 'i' } }
+        ]
+      });
 
-  
-  expect(mockQuery.select).toHaveBeenCalledWith('-photo');
-  
-  
-  expect(res.json).toHaveBeenCalledWith(mockProducts);
+
+      expect(mockQuery.select).toHaveBeenCalledWith('-photo');
+
+
+      expect(res.json).toHaveBeenCalledWith(mockProducts);
     });
   });
 
-   test("should return correct error ", async () => {
+  test("should return correct error ", async () => {
 
     req = {
-    params: {
-      keyword: 'textbook'
-    }
-  };
-   
-  //Line 178-183 is generated from DeepSeekV3.2 to show how to return error
-  const mockError = new Error("Database connection failed");
-  
-  // Mock find to return a rejected promise
-  productModel.find.mockReturnValue({
-    select: jest.fn().mockRejectedValue(mockError) // select rejects
-  });
+      params: {
+        keyword: 'textbook'
+      }
+    };
 
-  await searchProductController(req, res);
+    //Line 178-183 is generated from DeepSeekV3.2 to show how to return error
+    const mockError = new Error("Database connection failed");
 
-  expect(res.status).toHaveBeenCalledWith(400);
-  expect(res.send).toHaveBeenCalledWith({
-    success: false,
-    message: "Error In Search Product API",
-    error : mockError
-  });
+    // Mock find to return a rejected promise
+    productModel.find.mockReturnValue({
+      select: jest.fn().mockRejectedValue(mockError) // select rejects
+    });
+
+    await searchProductController(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.send).toHaveBeenCalledWith({
+      success: false,
+      message: "Error In Search Product API",
+      error: mockError
+    });
 
 
 
-   })
-// Gabriel Seethor, A0257008H 
-   describe('Filter Products (productFiltersController)', () => {
-        test('filter products by category only' , async () => {
+  })
+  // Gabriel Seethor, A0257008H 
+  describe('Filter Products (productFiltersController)', () => {
+    test('filter products by category only', async () => {
 
-            req = {
-                body: {
-                    checked: ['books'], 
-                   radio: [] 
-            }
-        };
+      req = {
+        body: {
+          checked: ['books'],
+          radio: []
+        }
+      };
 
-        const mockProducts = [
+      const mockProducts = [
         { _id: '1', name: 'Product 1', category: 'books', price: 50 },
         { _id: '2', name: 'Product 2', category: 'books', price: 100 }
-        ];
+      ];
 
-        productModel.find.mockReturnValue(mockProducts);
+      productModel.find.mockReturnValue(mockProducts);
 
-        await productFiltersController(req, res);
+      await productFiltersController(req, res);
 
-        expect(productModel.find).toHaveBeenCalledWith({
+      expect(productModel.find).toHaveBeenCalledWith({
         category: { $in: ['books'] }
-        });
-        expect(res.send).toHaveBeenCalledWith({
+      });
+      expect(res.send).toHaveBeenCalledWith({
         success: true,
         products: mockProducts
-        });
-        expect(res.status).toHaveBeenCalledWith(200);
+      });
+      expect(res.status).toHaveBeenCalledWith(200);
 
 
-        })
+    })
 
 
-        test('filter products by price only' , async () => {
+    test('filter products by price only', async () => {
 
-            req = {
-                body: {
-                    checked: [], 
-                   radio: [0, 100] 
-            }
-        };
+      req = {
+        body: {
+          checked: [],
+          radio: [0, 100]
+        }
+      };
 
-        const mockProducts = [
+      const mockProducts = [
         { _id: '1', name: 'Product 1', category: 'books', price: 50 },
         { _id: '2', name: 'Product 2', category: 'books', price: 100 }
-        ];
+      ];
 
-        productModel.find.mockReturnValue(mockProducts);
+      productModel.find.mockReturnValue(mockProducts);
 
-        await productFiltersController(req, res);
+      await productFiltersController(req, res);
 
-        expect(productModel.find).toHaveBeenCalledWith({
+      expect(productModel.find).toHaveBeenCalledWith({
         price: { $gte: 0, $lte: 100 }
-        });
-        expect(res.send).toHaveBeenCalledWith({
+      });
+      expect(res.send).toHaveBeenCalledWith({
         success: true,
         products: mockProducts
-        });
-        expect(res.status).toHaveBeenCalledWith(200);
+      });
+      expect(res.status).toHaveBeenCalledWith(200);
 
 
-        })
+    })
 
-         test('filter products by price and category' , async () => {
+    test('filter products by price and category', async () => {
 
-            req = {
-                body: {
-                    checked: ['books'], 
-                   radio: [0, 100] 
-            }
-        };
+      req = {
+        body: {
+          checked: ['books'],
+          radio: [0, 100]
+        }
+      };
 
-        const mockProducts = [
+      const mockProducts = [
         { _id: '1', name: 'Product 1', category: 'books', price: 50 },
         { _id: '2', name: 'Product 2', category: 'books', price: 100 }
-        ];
+      ];
 
-        productModel.find.mockReturnValue(mockProducts);
+      productModel.find.mockReturnValue(mockProducts);
 
-        await productFiltersController(req, res);
+      await productFiltersController(req, res);
 
-        expect(productModel.find).toHaveBeenCalledWith({
+      expect(productModel.find).toHaveBeenCalledWith({
         category: { $in: ['books'] },
         price: { $gte: 0, $lte: 100 }
-        });
-        expect(res.send).toHaveBeenCalledWith({
+      });
+      expect(res.send).toHaveBeenCalledWith({
         success: true,
         products: mockProducts
-        });
-        expect(res.status).toHaveBeenCalledWith(200);
+      });
+      expect(res.status).toHaveBeenCalledWith(200);
 
 
-        })
+    })
 
-         test('no filter' , async () => {
+    test('no filter', async () => {
 
-            req = {
-                body: {
-                    checked: [], 
-                   radio: [] 
-            }
-        };
-
-        const mockProducts = [
-        { _id: '1', name: 'Product 1', category: 'books', price: 50 },
-        { _id: '2', name: 'Product 2', category: 'books', price: 100 }
-        ];
-
-        productModel.find.mockReturnValue(mockProducts);
-
-        await productFiltersController(req, res);
-
-        expect(productModel.find).toHaveBeenCalledWith({});
-       
-        expect(res.send).toHaveBeenCalledWith({
-        success: true,
-        products: mockProducts
-        });
-        expect(res.status).toHaveBeenCalledWith(200);
-
-
-        })
-
-        test("error handling", async () => {
-
-            req = {
-                body: {
-                    checked: [], 
-                   radio: [] 
-            }
+      req = {
+        body: {
+          checked: [],
+          radio: []
         }
+      };
 
-        const mockError = new Error("Database connection failed");
-
-        const mockProducts = [
+      const mockProducts = [
         { _id: '1', name: 'Product 1', category: 'books', price: 50 },
         { _id: '2', name: 'Product 2', category: 'books', price: 100 }
-        ];
+      ];
 
-        productModel.find.mockRejectedValue(mockError);
+      productModel.find.mockReturnValue(mockProducts);
 
-        await productFiltersController(req, res);
+      await productFiltersController(req, res);
 
-      
-       
-        expect(res.send).toHaveBeenCalledWith({
+      expect(productModel.find).toHaveBeenCalledWith({});
+
+      expect(res.send).toHaveBeenCalledWith({
+        success: true,
+        products: mockProducts
+      });
+      expect(res.status).toHaveBeenCalledWith(200);
+
+
+    })
+
+    test("error handling", async () => {
+
+      req = {
+        body: {
+          checked: [],
+          radio: []
+        }
+      }
+
+      const mockError = new Error("Database connection failed");
+
+      const mockProducts = [
+        { _id: '1', name: 'Product 1', category: 'books', price: 50 },
+        { _id: '2', name: 'Product 2', category: 'books', price: 100 }
+      ];
+
+      productModel.find.mockRejectedValue(mockError);
+
+      await productFiltersController(req, res);
+
+
+
+      expect(res.send).toHaveBeenCalledWith({
         success: false,
         message: "Error While Filtering Products",
         error: mockError
-        });
-        expect(res.status).toHaveBeenCalledWith(400);
+      });
+      expect(res.status).toHaveBeenCalledWith(400);
 
 
-        })
-
-
-
-
-    
-        
-
-
-
-
-
-            
-        });
-
-        
+    })
 
 
 
@@ -413,13 +398,28 @@ describe('Product Controller Unit Tests', () => {
 
 
 
-   })
+
+
+
+
+
+  });
+
+
+
+
+
+
+
+
+
+})
 
 //Below onwards, all used AI to help generate since its mostly mundane unit tests.
 // Gabriel Seethor, A0257008H 
 describe('Get Products (getProductController)', () => {
-   
-   let req, res;
+
+  let req, res;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -432,15 +432,15 @@ describe('Get Products (getProductController)', () => {
   });
   test('should return 12 most recent products with category populated', async () => {
     const mockProducts = [
-      { 
-        _id: '1', 
-        name: 'Product 1', 
+      {
+        _id: '1',
+        name: 'Product 1',
         category: { name: 'Category 1', _id: 'cat1' },
         createdAt: new Date('2024-01-03')
       },
-      { 
-        _id: '2', 
-        name: 'Product 2', 
+      {
+        _id: '2',
+        name: 'Product 2',
         category: { name: 'Category 2', _id: 'cat2' },
         createdAt: new Date('2024-01-02')
       }
@@ -494,7 +494,7 @@ describe('Get Products (getProductController)', () => {
 
   test('should handle database errors gracefully', async () => {
     const mockError = new Error('Database connection failed');
-    
+
     const mockQuery = {
       populate: jest.fn().mockReturnThis(),
       select: jest.fn().mockReturnThis(),
@@ -504,7 +504,7 @@ describe('Get Products (getProductController)', () => {
 
     productModel.find.mockReturnValue(mockQuery);
 
-    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'log').mockImplementation(() => { });
 
     await getProductController(req, res);
 
@@ -537,7 +537,7 @@ describe('Get Single Product (getSingleProductController)', () => {
 
   test('should return single product when valid slug is provided', async () => {
     req.params.slug = 'test-product-123';
-    
+
     const mockProduct = {
       _id: '1',
       name: 'Test Product',
@@ -595,7 +595,7 @@ describe('Get Single Product (getSingleProductController)', () => {
     };
 
     productModel.findOne.mockReturnValue(mockQuery);
-    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'log').mockImplementation(() => { });
 
     await getSingleProductController(req, res);
 
@@ -630,7 +630,7 @@ describe('Product Photo (productPhotoController)', () => {
 
   test('should return product photo when product exists', async () => {
     req.params.pid = 'product123';
-    
+
     const mockProduct = {
       photo: {
         data: Buffer.from('fake-image-data'),
@@ -652,7 +652,7 @@ describe('Product Photo (productPhotoController)', () => {
 
   test('should handle case when product has no photo', async () => {
     req.params.pid = 'product123';
-    
+
     const mockProduct = {
       photo: {
         data: null,
@@ -680,7 +680,7 @@ describe('Product Photo (productPhotoController)', () => {
       select: jest.fn().mockRejectedValue(mockError)
     });
 
-    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'log').mockImplementation(() => { });
 
     await productPhotoController(req, res);
 
@@ -813,7 +813,7 @@ describe('Product List (productListController)', () => {
     };
 
     productModel.find.mockReturnValue(mockQuery);
-    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'log').mockImplementation(() => { });
 
     await productListController(req, res);
 
@@ -845,13 +845,13 @@ describe('Product Category (productCategoryController)', () => {
 
   test('should return products for valid category slug', async () => {
     req.params.slug = 'electronics';
-    
+
     const mockCategory = {
       _id: 'cat123',
       name: 'Electronics',
       slug: 'electronics'
     };
-    
+
     const mockProducts = [
       { _id: '1', name: 'Laptop', category: mockCategory },
       { _id: '2', name: 'Phone', category: mockCategory },
@@ -859,7 +859,7 @@ describe('Product Category (productCategoryController)', () => {
     ];
 
     categoryModel.findOne.mockResolvedValue(mockCategory);
-    
+
     productModel.find.mockReturnValue({
       populate: jest.fn().mockResolvedValue(mockProducts)
     });
@@ -878,17 +878,17 @@ describe('Product Category (productCategoryController)', () => {
 
   test('should return empty products array when category has no products', async () => {
     req.params.slug = 'new-category';
-    
+
     const mockCategory = {
       _id: 'cat456',
       name: 'New Category',
       slug: 'new-category'
     };
-    
+
     const mockProducts = [];
 
     categoryModel.findOne.mockResolvedValue(mockCategory);
-    
+
     productModel.find.mockReturnValue({
       populate: jest.fn().mockResolvedValue(mockProducts)
     });
@@ -909,7 +909,7 @@ describe('Product Category (productCategoryController)', () => {
     const mockError = new Error('Database connection failed');
 
     categoryModel.findOne.mockRejectedValue(mockError);
-    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'log').mockImplementation(() => { });
 
     await productCategoryController(req, res);
 

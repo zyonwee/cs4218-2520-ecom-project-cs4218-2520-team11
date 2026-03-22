@@ -52,7 +52,7 @@ describe("categoryController", () => {
   let logSpy;
 
   beforeEach(() => {
-    logSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+    logSpy = jest.spyOn(console, "log").mockImplementation(() => { });
     jest.clearAllMocks();
   });
 
@@ -187,7 +187,20 @@ describe("createCategoryController", () => {
     expect(res.send).toHaveBeenCalledWith({ message: "Name is required" });
   });
 
-  it("given a name that already exists – should return 200 with already exists message", async () => {
+  it("given a whitespace-only name – should return 401 with error message", async () => {
+    //Julius Bryan Reynon Gambe, A0252251R
+    // Given
+    req.body = { name: "   " };
+
+    // When
+    await createCategoryController(req, res);
+
+    // Then
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.send).toHaveBeenCalledWith({ message: "Name is required" });
+  });
+
+  it("given a name that already exists – should return 409 with already exists message", async () => {
     //Julius Bryan Reynon Gambe, A0252251R
     // Given
     req.body = { name: "Electronics" };
@@ -201,12 +214,38 @@ describe("createCategoryController", () => {
     await createCategoryController(req, res);
 
     // Then
-    expect(categoryModel.findOne).toHaveBeenCalledWith({ name: "Electronics" });
-    expect(res.status).toHaveBeenCalledWith(200);
+    expect(categoryModel.findOne).toHaveBeenCalledWith({
+      name: { $regex: expect.any(RegExp) },
+    });
+    expect(res.status).toHaveBeenCalledWith(409);
     expect(res.send).toHaveBeenCalledWith({
-      success: true,
+      success: false,
       message: "Category Already Exists",
     });
+  });
+
+  it("given a name that already exists in different case – should return 409", async () => {
+    //Julius Bryan Reynon Gambe, A0252251R
+    // Given
+    req.body = { name: "electronics" };
+    categoryModel.findOne.mockResolvedValueOnce({
+      _id: "cat1",
+      name: "Electronics",
+      slug: "electronics",
+    });
+
+    // When
+    await createCategoryController(req, res);
+
+    // Then
+    expect(res.status).toHaveBeenCalledWith(409);
+    expect(res.send).toHaveBeenCalledWith({
+      success: false,
+      message: "Category Already Exists",
+    });
+    // Verify the regex passed to findOne is case-insensitive
+    const queryArg = categoryModel.findOne.mock.calls[0][0];
+    expect(queryArg.name.$regex.flags).toContain("i");
   });
 
   it("given a valid new category name – should slugify name, save, and return 201", async () => {
@@ -291,6 +330,51 @@ describe("updateCategoryController", () => {
     req = { body: {}, params: {} };
     res = buildRes();
     slugify.mockImplementation((str) => str.toLowerCase().replace(/\s+/g, "-"));
+  });
+
+  it("given no name in request body – should return 401 with error message", async () => {
+    //Julius Bryan Reynon Gambe, A0252251R
+    // Given
+    req.body = {};
+    req.params = { id: "cat1" };
+
+    // When
+    await updateCategoryController(req, res);
+
+    // Then
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.send).toHaveBeenCalledWith({ message: "Name is required" });
+    expect(categoryModel.findByIdAndUpdate).not.toHaveBeenCalled();
+  });
+
+  it("given an empty string name – should return 401 with error message", async () => {
+    //Julius Bryan Reynon Gambe, A0252251R
+    // Given
+    req.body = { name: "" };
+    req.params = { id: "cat1" };
+
+    // When
+    await updateCategoryController(req, res);
+
+    // Then
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.send).toHaveBeenCalledWith({ message: "Name is required" });
+    expect(categoryModel.findByIdAndUpdate).not.toHaveBeenCalled();
+  });
+
+  it("given a whitespace-only name – should return 401 with error message", async () => {
+    //Julius Bryan Reynon Gambe, A0252251R
+    // Given
+    req.body = { name: "   " };
+    req.params = { id: "cat1" };
+
+    // When
+    await updateCategoryController(req, res);
+
+    // Then
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.send).toHaveBeenCalledWith({ message: "Name is required" });
+    expect(categoryModel.findByIdAndUpdate).not.toHaveBeenCalled();
   });
 
   it("given a valid name and id – should update category and return 200", async () => {

@@ -46,6 +46,7 @@ const CreateProduct = () => {
       productData.append("quantity", quantity);
       productData.append("photo", photo);
       productData.append("category", category);
+      productData.append("shipping", shipping);
       const { data } = await axios.post(
         "/api/v1/product/create-product",
         productData
@@ -78,6 +79,9 @@ const CreateProduct = () => {
                 size="large"
                 showSearch
                 className="form-select mb-3"
+                filterOption={(input, option) =>
+                  option.children.toLowerCase().includes(input.toLowerCase())
+                }
                 onChange={(value) => {
                   setCategory(value);
                 }}
@@ -156,6 +160,9 @@ const CreateProduct = () => {
                   size="large"
                   showSearch
                   className="form-select mb-3"
+                  filterOption={(input, option) =>
+                    option.children.toLowerCase().includes(input.toLowerCase())
+                  }
                   onChange={(value) => {
                     setShipping(value);
                   }}

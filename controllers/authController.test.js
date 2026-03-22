@@ -3,13 +3,18 @@ import {
   loginController,
   forgotPasswordController,
   testController,
-  updateProfileController
+  updateProfileController,
+  getOrdersController,
+  getAllOrdersController,
+  getAllUsersController,
 } from "./authController.js";
 import userModel from "../models/userModel.js";
+import orderModel from "../models/orderModel.js";
 import { hashPassword, comparePassword } from "../helpers/authHelper.js";
 import JWT from "jsonwebtoken";
 
 jest.mock("../models/userModel.js");
+jest.mock("../models/orderModel.js");
 jest.mock("../helpers/authHelper.js");
 jest.mock("jsonwebtoken");
 
@@ -512,6 +517,165 @@ describe("Auth Controller Test Suite", () => {
           })
         );
       });
+    });
+  });
+
+  describe("getOrdersController", () => {
+    const mockOrders = [
+      { _id: "order1", products: [{ _id: "p1", name: "Phone" }], buyer: { name: "Alice" } },
+      { _id: "order2", products: [{ _id: "p2", name: "Laptop" }], buyer: { name: "Alice" } },
+    ];
+
+    beforeEach(() => {
+      req.user = { _id: "user123" };
+    });
+
+    it("should return orders for the authenticated user via res.json", async () => {
+      // Julius Bryan Reynon Gambe A02522251R
+      // Chain: find().populate("products", "-photo").populate("buyer", "name")
+      const mockChain = { populate: jest.fn() };
+      mockChain.populate
+        .mockReturnValueOnce(mockChain)           // first .populate() returns chain
+        .mockResolvedValueOnce(mockOrders);        // second .populate() resolves
+      orderModel.find.mockReturnValue(mockChain);
+
+      await getOrdersController(req, res);
+
+      expect(orderModel.find).toHaveBeenCalledWith({ buyer: "user123" });
+      expect(mockChain.populate).toHaveBeenCalledWith("products", "-photo");
+      expect(mockChain.populate).toHaveBeenCalledWith("buyer", "name");
+      expect(res.json).toHaveBeenCalledWith(mockOrders);
+    });
+
+    it("should return only the requesting user's orders, not other users' orders", async () => {
+      // Julius Bryan Reynon Gambe A02522251R
+      const userOrders = [{ _id: "order1", buyer: { name: "Alice" } }];
+      const mockChain = { populate: jest.fn() };
+      mockChain.populate
+        .mockReturnValueOnce(mockChain)
+        .mockResolvedValueOnce(userOrders);
+      orderModel.find.mockReturnValue(mockChain);
+
+      await getOrdersController(req, res);
+
+      // find must be scoped to this user's _id, not an empty query
+      expect(orderModel.find).toHaveBeenCalledWith({ buyer: "user123" });
+      expect(res.json).toHaveBeenCalledWith(userOrders);
+    });
+
+    it("should return 500 with error message when orderModel.find throws", async () => {
+      // Julius Bryan Reynon Gambe A02522251R
+      orderModel.find.mockImplementation(() => { throw new Error("DB down"); });
+
+      await getOrdersController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          message: "Error WHile Geting Orders",
+        })
+      );
+    });
+  });
+
+  describe("getAllOrdersController", () => {
+    const mockOrders = [
+      { _id: "o1", products: [], buyer: { name: "Bob" }, createdAt: "2024-02-01" },
+      { _id: "o2", products: [], buyer: { name: "Carol" }, createdAt: "2024-01-01" },
+    ];
+
+    it("should return all orders sorted by createdAt descending via res.json", async () => {
+      // Julius Bryan Reynon Gambe A02522251R
+      // Chain: find({}).populate().populate().sort()
+      const mockChain = {
+        populate: jest.fn().mockReturnThis(),
+        sort: jest.fn().mockResolvedValue(mockOrders),
+      };
+      orderModel.find.mockReturnValue(mockChain);
+
+      await getAllOrdersController(req, res);
+
+      expect(orderModel.find).toHaveBeenCalledWith({});
+      expect(mockChain.populate).toHaveBeenCalledWith("products", "-photo");
+      expect(mockChain.populate).toHaveBeenCalledWith("buyer", "name");
+      expect(mockChain.sort).toHaveBeenCalledWith({ createdAt: -1 });
+      expect(res.json).toHaveBeenCalledWith(mockOrders);
+    });
+
+    it("should return an empty array when there are no orders", async () => {
+      // Julius Bryan Reynon Gambe A02522251R
+      const mockChain = {
+        populate: jest.fn().mockReturnThis(),
+        sort: jest.fn().mockResolvedValue([]),
+      };
+      orderModel.find.mockReturnValue(mockChain);
+
+      await getAllOrdersController(req, res);
+
+      expect(res.json).toHaveBeenCalledWith([]);
+    });
+
+    it("should return 500 with error message when the query throws", async () => {
+      // Julius Bryan Reynon Gambe A02522251R
+      orderModel.find.mockImplementation(() => { throw new Error("DB error"); });
+
+      await getAllOrdersController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          message: "Error WHile Geting Orders",
+        })
+      );
+    });
+  });
+
+  describe("getAllUsersController", () => {
+    const mockUsers = [
+      { _id: "u1", name: "Alice", email: "alice@example.com", role: 0 },
+      { _id: "u2", name: "Bob",   email: "bob@example.com",   role: 1 },
+    ];
+
+    it("should return 200 with all users, passwords excluded", async () => {
+      // Julius Bryan Reynon Gambe A02522251R
+      // Chain: find({}).select("-password")
+      const mockChain = { select: jest.fn().mockResolvedValue(mockUsers) };
+      userModel.find.mockReturnValue(mockChain);
+
+      await getAllUsersController(req, res);
+
+      expect(userModel.find).toHaveBeenCalledWith({});
+      expect(mockChain.select).toHaveBeenCalledWith("-password");
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith({ success: true, users: mockUsers });
+    });
+
+    it("should return 200 with an empty array when no users exist", async () => {
+      // Julius Bryan Reynon Gambe A02522251R
+      const mockChain = { select: jest.fn().mockResolvedValue([]) };
+      userModel.find.mockReturnValue(mockChain);
+
+      await getAllUsersController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith({ success: true, users: [] });
+    });
+
+    it("should return 500 with error message when userModel.find throws", async () => {
+      // Julius Bryan Reynon Gambe A02522251R
+      userModel.find.mockImplementation(() => { throw new Error("DB error"); });
+
+      await getAllUsersController(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.send).toHaveBeenCalledWith(
+        expect.objectContaining({
+          success: false,
+          message: "Error While Getting Users",
+        })
+      );
     });
   });
 });
