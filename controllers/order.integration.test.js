@@ -399,7 +399,7 @@ describe("Order endpoints integration tests", () => {
       expect(orderModel.findByIdAndUpdate).toHaveBeenCalledWith(
         order._id.toString(),
         { status: "Processing" },
-        { new: true }
+        { new: true, runValidators: true }
       );
       const updated = res.json.mock.calls[0][0];
       expect(updated).toBeInstanceOf(orderModel);
@@ -436,7 +436,7 @@ describe("Order endpoints integration tests", () => {
 
     it("real orderModel schema: all valid enum statuses pass validation", () => {
       // Julius Bryan Reynon Gambe A02522251R
-      const valid = ["Not Process", "Processing", "Shipped", "deliverd", "cancel"];
+      const valid = ["Not Process", "Processing", "Shipped", "delivered", "cancel"];
       valid.forEach((status) => {
         const doc = new orderModel({ status });
         expect(doc.validateSync()?.errors?.status).toBeUndefined();

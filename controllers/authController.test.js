@@ -532,11 +532,11 @@ describe("Auth Controller Test Suite", () => {
 
     it("should return orders for the authenticated user via res.json", async () => {
       // Julius Bryan Reynon Gambe A02522251R
-      // Chain: find().populate("products", "-photo").populate("buyer", "name")
-      const mockChain = { populate: jest.fn() };
-      mockChain.populate
-        .mockReturnValueOnce(mockChain)           // first .populate() returns chain
-        .mockResolvedValueOnce(mockOrders);        // second .populate() resolves
+      // Chain: find().populate("products", "-photo").populate("buyer", "name").sort()
+      const mockChain = {
+        populate: jest.fn().mockReturnThis(),
+        sort: jest.fn().mockResolvedValue(mockOrders),
+      };
       orderModel.find.mockReturnValue(mockChain);
 
       await getOrdersController(req, res);
@@ -550,10 +550,10 @@ describe("Auth Controller Test Suite", () => {
     it("should return only the requesting user's orders, not other users' orders", async () => {
       // Julius Bryan Reynon Gambe A02522251R
       const userOrders = [{ _id: "order1", buyer: { name: "Alice" } }];
-      const mockChain = { populate: jest.fn() };
-      mockChain.populate
-        .mockReturnValueOnce(mockChain)
-        .mockResolvedValueOnce(userOrders);
+      const mockChain = {
+        populate: jest.fn().mockReturnThis(),
+        sort: jest.fn().mockResolvedValue(userOrders),
+      };
       orderModel.find.mockReturnValue(mockChain);
 
       await getOrdersController(req, res);
