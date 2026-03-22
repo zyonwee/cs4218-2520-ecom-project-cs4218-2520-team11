@@ -1,63 +1,31 @@
-import React from 'react';
-import { render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
-import '@testing-library/jest-dom/extend-expect';
-import About from './About';
-import axios from 'axios';
+import React from "react";
+import { render, screen } from "@testing-library/react";
+import About from "./About";
 
-
-jest.mock('axios');
-
-jest.mock('../context/auth', () => ({
-  useAuth: jest.fn(() => [null, jest.fn()])
+jest.mock("../components/Layout", () => ({
+  __esModule: true,
+  default: ({ children, title }) => (
+    <div>
+      <div data-testid="layout-title">{title}</div>
+      {children}
+    </div>
+  ),
 }));
 
-jest.mock('../context/cart', () => ({
-  useCart: jest.fn(() => [[], jest.fn()])
-}));
+describe("About", () => {
+  // ZYON AARONEL WEE ZHUN WEI, A0277598B
+  it("renders the about page content inside the layout", () => {
+    // Arrange
+    render(<About />);
 
-jest.mock('../context/search', () => ({
-  useSearch: jest.fn(() => [{ keyword: '' }, jest.fn()])
-}));
+    // Act
+    const title = screen.getByTestId("layout-title");
+    const image = screen.getByAltText(/contactus/i);
+    const description = screen.getByText(/add text/i);
 
-jest.mock('../components/Layout', () => {
-  return function MockLayout({ children, title }) {
-    return (
-      <div>
-        <div data-testid="layout-title">{title}</div>
-        {children}
-      </div>
-    );
-  };
+    // Assert
+    expect(title).toHaveTextContent("About us - Ecommerce app");
+    expect(image).toHaveAttribute("src", "/images/about.jpeg");
+    expect(description).toBeInTheDocument();
+  });
 });
-
-
-jest.mock('react-icons/bi', () => ({
-  BiMailSend: () => <span data-testid="mail-icon">📧</span>,
-  BiPhoneCall: () => <span data-testid="phone-icon">📞</span>,
-  BiSupport: () => <span data-testid="support-icon">📞</span>
-}));
-
-      
-describe('About Page Component', () => {
-
-    it("test if about page renders correctly", () => {
-
-    axios.post.mockResolvedValueOnce({ data: { success: true } });
-    axios.get.mockResolvedValueOnce({ data: { categories: [] } });
-
-    render(
-    <MemoryRouter>
-      <About />
-    </MemoryRouter>
-  );
-
-     expect(screen.getByText(/Add text/)).toBeInTheDocument();
-   
-
-
-
-
-    })
-
-})
