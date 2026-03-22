@@ -204,9 +204,8 @@ test.describe("Admin – Create Product with Category", () => {
     // Click CREATE PRODUCT without filling any field
     await page.getByRole("button", { name: "CREATE PRODUCT" }).click();
 
-    // The app should show an error toast and remain on the create-product page
-    // (the controller returns 500 when required fields are missing)
-    await expect(page).toHaveURL(/create-product/);
+    // The catch block in handleCreate emits toast.error("something went wrong")
+    await expect(page.getByText("something went wrong")).toBeVisible();
 
     // No redirect to the products list
     await expect(page).not.toHaveURL(/\/dashboard\/admin\/products$/);
