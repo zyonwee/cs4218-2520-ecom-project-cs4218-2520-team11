@@ -158,7 +158,10 @@ Zyon Aaronel Wee Zhun Wei, A0277598B
 Features and tests: Category (`hooks/useCategory.js`, `pages/Categories.js`, `controllers/categoryController.js`, `models/categoryModel.js`), Payment (`controllers/productController.js` for `braintreeTokenController` and `brainTreePaymentController`), Admin Dashboard (`components/AdminMenu.js`, `pages/admin/AdminDashboard.js`), General (`components/Footer.js`, `components/Header.js`, `components/Layout.js`, `components/Spinner.js`, `pages/About.js`, `pages/Pagenotfound.js`, `config/db.js`)
 
 Antony Swami Alfred Ben, A0253016R
-Features: General, Order, Search
+Features and tests: General, Order, Search
+Unit Tests: `client/src/components/Form/SearchInput.test.js`, `client/src/components/Routes/Private.test.js`, `client/src/components/UserMenu.test.js`, `client/src/pages/user/Dashboard.test.js`, `client/src/pages/Search.test.js`, `models/userModel.test.js`, `controllers/authController.test.js` (updateProfileController tests)
+Integration Tests: `controllers/profileUpdate.integration.test.js`, `controllers/searchProduct.integration.test.js`
+UI Tests (Playwright): `tests/auth.spec.js`, `tests/cart.spec.js`, `tests/search.spec.js`, `tests/product-details.spec.js`, `tests/user-profile-orders.spec.js`
 
 Gabriel Seethor, A0257008H
 Features and tests: Product, Contact, Home, Cart, Policy
