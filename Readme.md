@@ -171,5 +171,5 @@ Features and tests: Product, Contact, Home, Cart, Policy
 `ProductDetailsCartIntegration.test.js`
 `ProductDetailsIntegration.test.js`
 `cart-productdetails.spec.ts`
-`Note: must run db.seed for test cases to work`
+`Note: Might need to run db.seed if test cases dont work`
 )
