@@ -151,7 +151,6 @@ To begin unit testing with Jest in your project, follow these steps:
 Julius Bryan Reynon Gambe, A0252251R
 Features: Admin Actions (`client/src/pages/admin/CreateCategory.test.js`, `client/src/components/Form/CategoryForm.test.js`, `controllers/categoryController.test.js`, `controllers/categoryController.integration.test.js`, `controllers/authController.test.js`, `tests/create-product.spec.js`, `tests/create-category.spec.js`), Admin View Products (`client/src/pages/admin/Products.test.js`, `client/src/pages/admin/CreateProduct.test.js`, `client/src/pages/admin/UpdateProduct.test.js`, `client/src/components/Form/SearchInput.test.js`, `controllers/productController.test.js`, `controllers/productController.integration.test.js`), Admin View Users (`client/src/pages/admin/Users.test.js`), Admin View Orders (`client/src/pages/admin/AdminOrders.test.js`, `controllers/order.integration.test.js`, `tests/orders.spec.js`, `Orders.test.js`)
 
-
 Huang Yi Chee, A0259617R
 Features and tests: Protected Routes (`context/auth.js`, `helpers/authHelper.js`, `middlewares/authMiddleware.js`), Registration & Login (`pages/Auth/Register.js`, `pages/Auth/Login.js`, `controllers/authController.js`), Profile (`pages/user/Profile.js`)
 
@@ -162,4 +161,15 @@ Antony Swami Alfred Ben, A0253016R
 Features: General, Order, Search
 
 Gabriel Seethor, A0257008H
-Features: Product, Contact, Home, Cart, Policy
+Features and tests: Product, Contact, Home, Cart, Policy
+(`productController.test.js`, `CartPage.test.js`, `CategoryProduct.test.js`, `FilterHomePage.test.js`, `HomePageCart.test.js`, `HomePageCart.test.js`)
+(`CartCheckoutIntegration.test.js`
+`HomePageCartIntegration.test.js`
+`HomePageIntegration.test.js`  
+`HomePageNavigationIntegration.test.js`
+`MergeGuestCartIntegration.test.js `
+`ProductDetailsCartIntegration.test.js`
+`ProductDetailsIntegration.test.js`
+`cart-productdetails.spec.ts`
+`Note: must run db.seed for test cases to work`
+)
