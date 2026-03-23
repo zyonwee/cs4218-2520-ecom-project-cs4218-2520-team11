@@ -29,7 +29,9 @@
 import { test, expect } from "@playwright/test";
 import {
   setupAdminUser,
+  setupTestUser,
   teardownAdminUser,
+  teardownTestUser,
 } from "./helpers/admin-setup.js";
 
 // ─── Credentials ──────────────────────────────────────────────────────────────
@@ -126,9 +128,11 @@ async function stubProductPhotos(page) {
 // ─── Admin user lifecycle ─────────────────────────────────────────────────────
 test.beforeAll(async () => {
   await setupAdminUser();
+  await setupTestUser();
 });
 
 test.afterAll(async () => {
+  await teardownTestUser();
   await teardownAdminUser();
 });
 

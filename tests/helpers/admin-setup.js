@@ -5,8 +5,14 @@
  *
  *   import { setupAdminUser, teardownAdminUser } from "./helpers/admin-setup.js";
  *
- *   test.beforeAll(async () => { await setupAdminUser(); });
- *   test.afterAll(async () => { await teardownAdminUser(); });
+ *   test.beforeAll(async () => {
+ *     await setupAdminUser();
+ *     await setupTestUser(); // for loginAsUser specs (optional)
+ *   });
+ *   test.afterAll(async () => {
+ *     await teardownTestUser();
+ *     await teardownAdminUser();
+ *   });
  */
 
 const mongoose = require("mongoose");
@@ -18,6 +24,8 @@ dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "admin@example.com";
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "adminpass";
+const USER_EMAIL = process.env.USER_EMAIL || "user@example.com";
+const USER_PASSWORD = process.env.USER_PASSWORD || "userpass";
 
 const userSchema = new mongoose.Schema(
   {
@@ -36,6 +44,8 @@ const User =
   mongoose.models.users || mongoose.model("users", userSchema);
 
 let connection = null;
+/** True only if this process created the E2E test user (safe teardown). */
+let testUserCreatedBySetup = false;
 
 async function connect() {
   if (mongoose.connection.readyState === 0) {
@@ -76,10 +86,47 @@ async function setupAdminUser() {
   await disconnect();
 }
 
+/** Ensures a non-admin user exists for specs that call loginAsUser (e.g. orders user tests). */
+async function setupTestUser() {
+  await connect();
+
+  const existing = await User.findOne({ email: USER_EMAIL });
+  if (existing) {
+    await disconnect();
+    return;
+  }
+
+  testUserCreatedBySetup = true;
+  const hashedPassword = await bcrypt.hash(USER_PASSWORD, 10);
+  await User.create({
+    name: "Test User",
+    email: USER_EMAIL,
+    password: hashedPassword,
+    phone: "00000001",
+    address: "Test User Address",
+    answer: "test",
+    role: 0,
+  });
+
+  await disconnect();
+}
+
 async function teardownAdminUser() {
   await connect();
   await User.deleteOne({ email: ADMIN_EMAIL });
   await disconnect();
 }
 
-module.exports = { setupAdminUser, teardownAdminUser };
+async function teardownTestUser() {
+  if (!testUserCreatedBySetup) return;
+  await connect();
+  await User.deleteOne({ email: USER_EMAIL });
+  await disconnect();
+}
+
+module.exports = {
+  setupAdminUser,
+  teardownAdminUser,
+  setupTestUser,
+  teardownTestUser,
+};
